@@ -1,0 +1,15 @@
+# Python
+flowguide-fastapi/venv/
+flowguide-fastapi/__pycache__/
+flowguide-fastapi/**/__pycache__/
+flowguide-fastapi/**/*.pyc
+flowguide-fastapi/.env
+
+# Node
+frontend/node_modules/
+frontend/dist/
+
+# Editor/OS
+.vscode/
+.idea/
+.DS_Store
