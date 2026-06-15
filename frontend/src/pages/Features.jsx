@@ -47,7 +47,7 @@ export default function Features({ onNavigate }) {
       {/* Header */}
       <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
         <h2 style={{ fontSize: '2.5rem', color: 'var(--dark-slate)' }}>Built for Seamless Teams</h2>
-        <p style={{ color: 'var(--text-light)', fontSize: '1.05rem' }}>Discover how TaskHub guides workspace workflows and boosts user engagement.</p>
+        <p style={{ color: 'var(--text-light)', fontSize: '1.05rem' }}>Discover how FlowGuide guides workspace workflows and boosts user engagement.</p>
       </div>
 
       {/* Grid of features */}

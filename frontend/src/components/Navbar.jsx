@@ -29,11 +29,11 @@ export default function Navbar({ currentTab, onNavigate }) {
         onClick={handleLogoClick}
         style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', cursor: 'pointer' }}
       >
-        <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: 'linear-gradient(135deg, #f97316 0%, #3b82f6 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '1.1rem', fontWeight: 'bold', boxShadow: '0 4px 10px rgba(249, 115, 22, 0.2)' }}>
+        <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: 'linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '1.1rem', fontWeight: 'bold', boxShadow: '0 4px 10px rgba(79, 70, 229, 0.2)' }}>
           🚀
         </div>
         <h1 style={{ fontSize: '1.4rem', fontWeight: '800', letterSpacing: '-0.04em', display: 'flex', alignItems: 'center' }}>
-          TASK<span style={{ color: '#f97316' }}>HUB</span>
+          FLOW<span style={{ color: '#4f46e5' }}>GUIDE</span>
         </h1>
       </div>
 

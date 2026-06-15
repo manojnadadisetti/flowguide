@@ -51,7 +51,7 @@ export default function Legal() {
           
           <h4 style={{ color: 'var(--dark-slate)', fontWeight: '700', marginTop: '0.5rem' }}>1. Acceptance of Terms</h4>
           <p>
-            By accessing or using the TaskHub / FlowGuide services, you agree to comply with and be bound by these Terms and Conditions. If you do not agree, you are prohibited from using the application.
+            By accessing or using the FlowGuide services, you agree to comply with and be bound by these Terms and Conditions. If you do not agree, you are prohibited from using the application.
           </p>
 
           <h4 style={{ color: 'var(--dark-slate)', fontWeight: '700', marginTop: '0.5rem' }}>2. Account Responsibilities</h4>
@@ -66,7 +66,7 @@ export default function Legal() {
 
           <h4 style={{ color: 'var(--dark-slate)', fontWeight: '700', marginTop: '0.5rem' }}>4. Limitation of Liability</h4>
           <p>
-            TaskHub provides services 'as is'. We are not liable for database connection failures, notification delays, or any lost data caused by third-party webhook connection issues.
+            FlowGuide provides services 'as is'. We are not liable for database connection failures, notification delays, or any lost data caused by third-party webhook connection issues.
           </p>
         </div>
       ) : (

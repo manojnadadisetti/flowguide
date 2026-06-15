@@ -18,14 +18,14 @@ export default function Home({ onNavigate }) {
           </div>
           
           <h1 style={{ fontSize: '3.75rem', lineHeight: '1.1', fontWeight: '800', letterSpacing: '-0.03em' }}>
-            Project <br />
+            Student <br />
             <span style={{ background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              Management
+              Learning Path
             </span>
           </h1>
 
           <p style={{ color: 'var(--text-light)', fontSize: '1.05rem', lineHeight: '1.7', maxWidth: '480px' }}>
-            TaskHub is the best project management tool to manage your company's projects and tasks very effectively. Its powerful features help boost the growth of your company. This powerful tool also helps you manage human resources so you can increase your productivity.
+            FlowGuide is the best student learning platform to customize your study path and tracks very effectively. Its powerful features help boost your academic skills. This powerful tool also helps you manage study targets so you can increase your learning productivity.
           </p>
 
           <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>

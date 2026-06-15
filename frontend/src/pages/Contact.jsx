@@ -127,7 +127,7 @@ export default function Contact() {
             </div>
             <div>
               <h4 style={{ fontSize: '0.85rem', fontWeight: 'bold', textTransform: 'uppercase', color: 'var(--text-light)' }}>Email Support</h4>
-              <span style={{ fontSize: '0.95rem', fontWeight: 'bold', color: 'var(--dark-slate)' }}>support@taskhub.com</span>
+              <span style={{ fontSize: '0.95rem', fontWeight: 'bold', color: 'var(--dark-slate)' }}>support@flowguide.com</span>
             </div>
           </div>
 
@@ -137,7 +137,7 @@ export default function Contact() {
             </div>
             <div>
               <h4 style={{ fontSize: '0.85rem', fontWeight: 'bold', textTransform: 'uppercase', color: 'var(--text-light)' }}>Call Us</h4>
-              <span style={{ fontSize: '0.95rem', fontWeight: 'bold', color: 'var(--dark-slate)' }}>+1 (800) 555-TASK</span>
+              <span style={{ fontSize: '0.95rem', fontWeight: 'bold', color: 'var(--dark-slate)' }}>+1 (800) 555-FLOW</span>
             </div>
           </div>
 
