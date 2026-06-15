@@ -8,12 +8,16 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
-from app.core.database import Base, engine, connect_to_mongo, close_mongo_connection, ping_mongo
-from app.routers import auth, onboarding, users
+from app.core.database import Base, engine, SessionLocal, connect_to_mongo, close_mongo_connection, ping_mongo
+from app.core.db_patch import patch_and_seed_db
+from app.routers import auth, onboarding, users, courses, quizzes, assignments, chatbot, planner, resources
 
-# Create tables if they don't exist (Spring Boot already creates them,
-# but this ensures FastAPI's models match — safe no-op if tables exist)
+# Create tables if they don't exist
 Base.metadata.create_all(bind=engine)
+
+# Patch and seed databases
+with SessionLocal() as db:
+    patch_and_seed_db(db)
 
 
 @asynccontextmanager
@@ -25,7 +29,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title=settings.APP_NAME,
-    description="FlowGuide - User Onboarding & Guided Workflow API",
+    description="FlowGuide - Student Learning & Onboarding API",
     version="1.0.0",
     lifespan=lifespan,
 )
@@ -46,6 +50,12 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(onboarding.router)
 app.include_router(users.router)
+app.include_router(courses.router)
+app.include_router(quizzes.router)
+app.include_router(assignments.router)
+app.include_router(chatbot.router)
+app.include_router(planner.router)
+app.include_router(resources.router)
 
 
 @app.get("/")

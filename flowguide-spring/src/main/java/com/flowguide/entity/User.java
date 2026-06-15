@@ -37,6 +37,24 @@ public class User {
     @Column(name = "phone_number", length = 50)
     private String phoneNumber;
 
+    @Column(name = "interests", length = 1000)
+    private String interests = "";
+
+    @Column(name = "skill_level", length = 50)
+    private String skillLevel = "Beginner";
+
+    @Column(name = "streak_count", nullable = false)
+    private Integer streakCount = 0;
+
+    @Column(name = "last_activity_date")
+    private LocalDateTime lastActivityDate;
+
+    @Column(name = "total_points", nullable = false)
+    private Integer totalPoints = 0;
+
+    @Column(name = "daily_target_minutes", nullable = false)
+    private Integer dailyTargetMinutes = 30;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -80,6 +98,18 @@ public class User {
     public void setAvatarUrl(String avatarUrl) { this.avatarUrl = avatarUrl; }
     public String getPhoneNumber()             { return phoneNumber; }
     public void setPhoneNumber(String p)       { this.phoneNumber = p; }
+    public String getInterests()               { return interests; }
+    public void setInterests(String interests) { this.interests = interests; }
+    public String getSkillLevel()              { return skillLevel; }
+    public void setSkillLevel(String skillLevel) { this.skillLevel = skillLevel; }
+    public Integer getStreakCount()            { return streakCount; }
+    public void setStreakCount(Integer s)      { this.streakCount = s; }
+    public LocalDateTime getLastActivityDate() { return lastActivityDate; }
+    public void setLastActivityDate(LocalDateTime d) { this.lastActivityDate = d; }
+    public Integer getTotalPoints()            { return totalPoints; }
+    public void setTotalPoints(Integer p)      { this.totalPoints = p; }
+    public Integer getDailyTargetMinutes()     { return dailyTargetMinutes; }
+    public void setDailyTargetMinutes(Integer m) { this.dailyTargetMinutes = m; }
     public LocalDateTime getCreatedAt()        { return createdAt; }
     public LocalDateTime getUpdatedAt()        { return updatedAt; }
 }

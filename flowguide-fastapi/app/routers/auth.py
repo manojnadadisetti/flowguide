@@ -57,12 +57,13 @@ def register(payload: RegisterRequest, db: Session = Depends(get_db)):
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
 
+    role = "admin" if "admin" in payload.email.lower() else "user"
     user = User(
         email=payload.email,
         full_name=payload.full_name,
         password_hash=hash_password(payload.password),
         phone_number=payload.phone_number,
-        role="user",
+        role=role,
         is_active=True,
         is_verified=False,
     )

@@ -46,6 +46,11 @@ class UserOut(BaseModel):
     is_verified: bool
     avatar_url: Optional[str] = None
     phone_number: Optional[str] = None
+    interests: Optional[str] = ""
+    skill_level: Optional[str] = "Beginner"
+    streak_count: int = 0
+    total_points: int = 0
+    daily_target_minutes: int = 30
     created_at: datetime
     updated_at: datetime
 
@@ -57,3 +62,6 @@ class UserUpdateRequest(BaseModel):
     full_name: Optional[str] = Field(default=None, min_length=2, max_length=255)
     avatar_url: Optional[str] = None
     phone_number: Optional[str] = Field(default=None, max_length=50)
+    interests: Optional[str] = None
+    skill_level: Optional[str] = None
+    daily_target_minutes: Optional[int] = None
