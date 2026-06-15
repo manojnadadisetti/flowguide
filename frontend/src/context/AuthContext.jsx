@@ -203,29 +203,56 @@ export function AuthProvider({ children }) {
   // --------------------------------------------------
   const loadLiveData = async () => {
     try {
-      const uData = await authService.getProfile();
-      setCurrentUser(uData);
+      // 1. Load user profile (critical path)
+      let uData;
+      try {
+        uData = await authService.getProfile();
+        setCurrentUser(uData);
+      } catch (e) {
+        console.error('Failed to load user profile from Spring Boot:', e);
+        throw e; // Reraise to trigger auth failure flow if profile cannot be loaded
+      }
 
+      // 2. Load courses and enrollments from FastAPI (critical path)
       const allCourses = await request('/api/courses');
       setCourses(allCourses);
 
       const myEnrollments = await request('/api/courses/my-courses');
       setEnrolledCourses(myEnrollments);
 
-      const tasks = await request('/api/planner');
-      setPlannerTasks(tasks);
+      // 3. Load planner tasks from Node.js (non-critical path, fault-tolerant)
+      try {
+        const tasks = await request('/api/planner');
+        setPlannerTasks(tasks);
+      } catch (e) {
+        console.warn('Failed to load planner tasks from Node.js service:', e);
+        setPlannerTasks([]); // Fallback to empty list
+      }
 
-      if (uData.role === 'admin') {
-        const subs = await request('/api/assignments/submissions');
-        setAdminSubmissions(subs);
-        const studs = await request('/api/users');
-        setAdminStudents(studs);
+      // 4. Load Admin features (optional paths)
+      if (uData && uData.role === 'admin') {
+        try {
+          const subs = await request('/api/assignments/submissions');
+          setAdminSubmissions(subs);
+        } catch (e) {
+          console.warn('Failed to load submissions:', e);
+          setAdminSubmissions([]);
+        }
+
+        try {
+          const studs = await request('/api/users');
+          setAdminStudents(studs);
+        } catch (e) {
+          console.warn('Failed to load students directory from Spring Boot:', e);
+          setAdminStudents([]);
+        }
       }
     } catch (e) {
       console.error('Failed to load live academic data:', e);
       try {
         const testRes = await fetch('/api/health');
         if (testRes.ok) {
+          // If the gateway is running, and the profile request failed, it means auth is invalid
           localStorage.removeItem('token');
           setToken('');
           setCurrentUser(null);

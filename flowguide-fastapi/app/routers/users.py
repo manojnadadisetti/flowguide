@@ -15,25 +15,49 @@ router = APIRouter(prefix="/api/users", tags=["Users"])
 SPRING_BOOT_URL = "http://localhost:8080/api/users"
 SPRING_BOOT_AUDIT_URL = "http://localhost:8080/api/audit-logs"
 
+def format_datetime(val):
+    if isinstance(val, list):
+        try:
+            parts = [str(x).zfill(2) for x in val]
+            # Format: YYYY-MM-DDTHH:MM:SS
+            date_str = f"{parts[0]}-{parts[1]}-{parts[2]}T{parts[3]}:{parts[4]}:{parts[5]}"
+            return date_str
+        except Exception:
+            pass
+    return val
+
 def to_snake_case(camel_dict: dict) -> dict:
-    mapping = {
-        "id": "id",
-        "email": "email",
-        "fullName": "full_name",
-        "role": "role",
-        "isActive": "is_active",
-        "isVerified": "is_verified",
-        "avatarUrl": "avatar_url",
-        "phoneNumber": "phone_number",
-        "interests": "interests",
-        "skillLevel": "skill_level",
-        "streakCount": "streak_count",
-        "totalPoints": "total_points",
-        "dailyTargetMinutes": "daily_target_minutes",
-        "createdAt": "created_at",
-        "updatedAt": "updated_at"
-    }
-    return {mapping.get(k, k): v for k, v in camel_dict.items()}
+    res = {}
+    res["id"] = camel_dict.get("id")
+    res["email"] = camel_dict.get("email")
+    res["full_name"] = camel_dict.get("fullName") or camel_dict.get("full_name") or ""
+    res["role"] = camel_dict.get("role") or "user"
+    
+    is_act = camel_dict.get("isActive")
+    if is_act is None:
+        is_act = camel_dict.get("active")
+    if is_act is None:
+        is_act = camel_dict.get("is_active")
+    res["is_active"] = bool(is_act) if is_act is not None else True
+    
+    is_ver = camel_dict.get("isVerified")
+    if is_ver is None:
+        is_ver = camel_dict.get("verified")
+    if is_ver is None:
+        is_ver = camel_dict.get("is_verified")
+    res["is_verified"] = bool(is_ver) if is_ver is not None else False
+    
+    res["avatar_url"] = camel_dict.get("avatarUrl") or camel_dict.get("avatar_url")
+    res["phone_number"] = camel_dict.get("phoneNumber") or camel_dict.get("phone_number")
+    res["interests"] = camel_dict.get("interests") or ""
+    res["skill_level"] = camel_dict.get("skillLevel") or camel_dict.get("skill_level") or "Beginner"
+    res["streak_count"] = camel_dict.get("streakCount") or camel_dict.get("streak_count") or 0
+    res["total_points"] = camel_dict.get("totalPoints") or camel_dict.get("total_points") or 0
+    res["daily_target_minutes"] = camel_dict.get("dailyTargetMinutes") or camel_dict.get("daily_target_minutes") or 30
+    
+    res["created_at"] = format_datetime(camel_dict.get("createdAt") or camel_dict.get("created_at"))
+    res["updated_at"] = format_datetime(camel_dict.get("updatedAt") or camel_dict.get("updated_at"))
+    return res
 
 
 @router.get("", response_model=List[UserOut])
