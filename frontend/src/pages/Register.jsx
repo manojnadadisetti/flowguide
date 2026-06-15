@@ -12,10 +12,7 @@ export default function Register({ onNavigate }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    const success = await register(email, password, fullName, phoneNumber);
-    if (success) {
-      onNavigate('onboarding');
-    }
+    await register(email, password, fullName, phoneNumber);
   };
 
   return (

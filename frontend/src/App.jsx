@@ -19,19 +19,49 @@ import { MessageSquare, X, SendHorizontal } from 'lucide-react';
 function AppContent() {
   const {
     token,
-    steps,
-    activeStep,
-    setActiveStep,
-    updateStepProgress,
-    demoMode
+    currentUser,
+    demoMode,
+    sendChatMessage
   } = useAuth();
 
   const [page, setPage] = useState('home'); // home | plans | features | resources | contact | legal | onboarding | dashboard | profile | admin | login | register
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [chatInput, setChatInput] = useState('');
   const [chatMessages, setChatMessages] = useState([
-    { id: '1', sender: 'ai', text: "Hey there! I'm Sparky, your onboarding assistant. Ask me anything about setting up your workspace!" }
+    { id: '1', sender: 'ai', text: "Hey there! I'm Sparky, your AI study assistant. Ask me to explain concepts, generate notes, or help with code and assignments!" }
   ]);
+
+  const renderMarkdown = (text) => {
+    if (!text) return '';
+    let html = text
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+      
+    // Replace code blocks: ```[lang] code ```
+    html = html.replace(/```[a-z]*\n([\s\S]*?)\n```/g, '<pre style="background:#0f172a;color:#e2e8f0;padding:0.75rem;border-radius:0.5rem;font-family:monospace;font-size:0.75rem;overflow-x:auto;margin:0.5rem 0;white-space:pre-wrap;text-align:left;"><code>$1</code></pre>');
+    
+    // Replace inline code: `code`
+    html = html.replace(/`([^`]+)`/g, '<code style="background:#e2e8f0;color:#0f172a;padding:0.1rem 0.3rem;border-radius:4px;font-family:monospace;font-size:0.8rem;">$1</code>');
+    
+    // Replace headings: ### text
+    html = html.replace(/###\s*(.*)/g, '<h4 style="margin:0.5rem 0 0.25rem 0;color:var(--primary-dark);font-size:0.9rem;">$1</h4>');
+    
+    // Replace bold: **text**
+    html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    
+    // Replace math
+    html = html.replace(/\$\$([^\$]+)\$\$/g, '<span style="font-family:serif;font-style:italic;">$1</span>');
+    html = html.replace(/\$([^\$]+)\$/g, '<span style="font-family:serif;font-style:italic;">$1</span>');
+
+    // Replace bullet points: - text
+    html = html.replace(/^-\s*(.*)/gm, '• $1');
+    
+    // Replace newlines with <br/>
+    html = html.replace(/\n/g, '<br/>');
+    
+    return html;
+  };
   const [confettiActive, setConfettiActive] = useState(false);
 
   const chatEndRef = useRef(null);
@@ -44,12 +74,16 @@ function AppContent() {
         setPage('login');
       }
     } else {
-      // If signed in, and they were on login or register, take them to onboarding roadmap
-      if (['login', 'register'].includes(page)) {
-        setPage('onboarding');
+      // If signed in, and they were on login or register, wait for profile and redirect based on role
+      if (['login', 'register'].includes(page) && currentUser) {
+        if (currentUser.role === 'admin') {
+          setPage('admin');
+        } else {
+          setPage('onboarding');
+        }
       }
     }
-  }, [token]);
+  }, [token, currentUser, page]);
 
   // Scroll chat messages to bottom on update
   useEffect(() => {
@@ -81,95 +115,19 @@ function AppContent() {
     const loadingId = 'loading-' + Date.now();
     setChatMessages(prev => [...prev, { id: loadingId, sender: 'ai', text: 'Thinking...', loading: true }]);
 
-    if (demoMode) {
-      // Offline local AI
-      setTimeout(() => {
-        const queryLower = userMsg.text.toLowerCase();
-        let answer = "I couldn't find an exact match for that question, but I can help you complete your onboarding road map! Let me know if you need help with your profile, email verification, notifications, or team invites.";
-        let suggestedId = null;
-        let suggestedTitle = "";
-
-        if (queryLower.includes('profile') || queryLower.includes('avatar') || queryLower.includes('name')) {
-          answer = "Complete your profile in Step 2! You can pick a custom emoji avatar buddy and enter your full name.";
-          suggestedId = "step-2";
-          suggestedTitle = "Complete Your Profile";
-        } else if (queryLower.includes('email') || queryLower.includes('verify')) {
-          answer = "Verify your email in Step 3! We simulate this with an interactive email client layout inside the step panel.";
-          suggestedId = "step-3";
-          suggestedTitle = "Verify Your Email";
-        } else if (queryLower.includes('dashboard') || queryLower.includes('tour') || queryLower.includes('explore')) {
-          answer = "Take an interactive tour of the workspace in Step 4. Click the highlighted areas to unlock the next step!";
-          suggestedId = "step-4";
-          suggestedTitle = "Explore the Dashboard";
-        } else if (queryLower.includes('notification') || queryLower.includes('alert') || queryLower.includes('bell')) {
-          answer = "Configure your notifications channels in Step 5. You can toggle email alerts, push cards, or Slack DMs.";
-          suggestedId = "step-5";
-          suggestedTitle = "Set Up Notifications";
-        } else if (queryLower.includes('team') || queryLower.includes('invite') || queryLower.includes('colleague')) {
-          answer = "Invite your teammates in Step 6. Type their email addresses and send invites.";
-          suggestedId = "step-6";
-          suggestedTitle = "Invite Your Team";
-        } else if (queryLower.includes('integration') || queryLower.includes('slack') || queryLower.includes('jira') || queryLower.includes('connect')) {
-          answer = "Link integrations like Slack, Jira, or Google Services in Step 7. Try toggling JIRA or Slack!";
-          suggestedId = "step-7";
-          suggestedTitle = "Connect Integrations";
-        } else {
-          // Default to next step if user is logged in
-          if (token && steps.length > 0) {
-            const incomplete = steps.find(s => s.status !== 'completed' && s.status !== 'skipped');
-            if (incomplete) {
-              answer = `Let's work on your next step: '${incomplete.title}'! Description: ${incomplete.description}`;
-              suggestedId = incomplete.id;
-              suggestedTitle = incomplete.title;
-            }
-          }
-        }
-
-        setChatMessages(prev => prev.filter(m => m.id !== loadingId).concat({
-          id: Date.now().toString(),
-          sender: 'ai',
-          text: answer,
-          suggestedStepId: suggestedId,
-          suggestedStepTitle: suggestedTitle
-        }));
-      }, 700);
-    } else {
-      // Live API Guidance
-      try {
-        const res = await fetch('/api/onboarding/guidance', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          },
-          body: JSON.stringify({ query: userMsg.text })
-        });
-        const data = await res.json();
-        setChatMessages(prev => prev.filter(m => m.id !== loadingId).concat({
-          id: Date.now().toString(),
-          sender: 'ai',
-          text: data.answer,
-          suggestedStepId: data.suggested_step_id,
-          suggestedStepTitle: data.suggested_step_title
-        }));
-      } catch (err) {
-        setChatMessages(prev => prev.filter(m => m.id !== loadingId).concat({
-          id: Date.now().toString(),
-          sender: 'ai',
-          text: "I had trouble communicating with the live guidance engine. Please verify the FastAPI backend is running on port 8000."
-        }));
-      }
-    }
-  };
-
-  const handleGoToSuggestedStep = (stepId) => {
-    const targetStep = steps.find(s => s.id === stepId);
-    if (targetStep) {
-      setActiveStep(targetStep);
-      setPage('onboarding');
-      if (targetStep.status === 'pending') {
-        updateStepProgress(targetStep.id, 'in_progress', 'Began step via AI recommendation.');
-      }
+    try {
+      const responseText = await sendChatMessage(userMsg.text);
+      setChatMessages(prev => prev.filter(m => m.id !== loadingId).concat({
+        id: Date.now().toString(),
+        sender: 'ai',
+        text: responseText
+      }));
+    } catch (err) {
+      setChatMessages(prev => prev.filter(m => m.id !== loadingId).concat({
+        id: Date.now().toString(),
+        sender: 'ai',
+        text: "I had trouble communicating with the chatbot service. Please ensure the backend is running."
+      }));
     }
   };
 
@@ -333,34 +291,8 @@ function AppContent() {
                         border: msg.sender === 'user' ? 'none' : '1px solid var(--border-color)',
                         boxShadow: '0 2px 5px rgba(0,0,0,0.02)'
                       }}
-                    >
-                      {msg.text}
-                    </div>
-
-                    {/* Recommendation Step Shortcut link */}
-                    {msg.suggestedStepId && (
-                      <button
-                        onClick={() => handleGoToSuggestedStep(msg.suggestedStepId)}
-                        style={{
-                          alignSelf: 'flex-start',
-                          marginTop: '0.25rem',
-                          background: 'var(--secondary-light)',
-                          color: 'var(--secondary-dark)',
-                          border: 'none',
-                          padding: '0.4rem 0.8rem',
-                          borderRadius: '0.5rem',
-                          fontSize: '0.75rem',
-                          fontWeight: 'bold',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.25rem',
-                          boxShadow: '0 2px 6px rgba(236, 72, 153, 0.15)'
-                        }}
-                      >
-                        👉 Go to step: {msg.suggestedStepTitle}
-                      </button>
-                    )}
+                      dangerouslySetInnerHTML={{ __html: renderMarkdown(msg.text) }}
+                    />
                   </div>
                 ))}
                 <div ref={chatEndRef} />
@@ -368,9 +300,9 @@ function AppContent() {
 
               {/* Preset suggestion chips */}
               <div style={{ padding: '0.5rem 1rem', display: 'flex', gap: '0.4rem', overflowX: 'auto', background: '#fff', borderTop: '1px solid var(--border-color)', whiteSpace: 'nowrap' }}>
-                <button onClick={() => handleQuickQuestion('How to complete my profile?')} style={{ flexShrink: 0, padding: '0.25rem 0.6rem', border: '1px solid var(--primary-light)', borderRadius: '99px', fontSize: '0.7rem', background: 'var(--primary-light)', color: 'var(--primary-dark)', cursor: 'pointer', fontWeight: 'bold' }}>👤 Edit Profile</button>
-                <button onClick={() => handleQuickQuestion('How do I verify email?')} style={{ flexShrink: 0, padding: '0.25rem 0.6rem', border: '1px solid var(--secondary-light)', borderRadius: '99px', fontSize: '0.7rem', background: 'var(--secondary-light)', color: 'var(--secondary-dark)', cursor: 'pointer', fontWeight: 'bold' }}>✉️ Verify Email</button>
-                <button onClick={() => handleQuickQuestion('Connect Slack integration?')} style={{ flexShrink: 0, padding: '0.25rem 0.6rem', border: '1px solid var(--info-light)', borderRadius: '99px', fontSize: '0.7rem', background: 'var(--info-light)', color: 'var(--info)', cursor: 'pointer', fontWeight: 'bold' }}>🔌 Integrations</button>
+                <button onClick={() => handleQuickQuestion('Explain Linear Regression')} style={{ flexShrink: 0, padding: '0.25rem 0.6rem', border: '1px solid var(--primary-light)', borderRadius: '99px', fontSize: '0.7rem', background: 'var(--primary-light)', color: 'var(--primary-dark)', cursor: 'pointer', fontWeight: 'bold' }}>🤖 Explain ML Regression</button>
+                <button onClick={() => handleQuickQuestion('Calculator assignment tips')} style={{ flexShrink: 0, padding: '0.25rem 0.6rem', border: '1px solid var(--secondary-light)', borderRadius: '99px', fontSize: '0.7rem', background: 'var(--secondary-light)', color: 'var(--secondary-dark)', cursor: 'pointer', fontWeight: 'bold' }}>🐍 Calculator Tips</button>
+                <button onClick={() => handleQuickQuestion('Generate JavaScript study notes')} style={{ flexShrink: 0, padding: '0.25rem 0.6rem', border: '1px solid var(--info-light)', borderRadius: '99px', fontSize: '0.7rem', background: 'var(--info-light)', color: 'var(--info)', cursor: 'pointer', fontWeight: 'bold' }}>📚 JavaScript Notes</button>
               </div>
 
               {/* Message inputs form */}

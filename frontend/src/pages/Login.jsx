@@ -10,10 +10,7 @@ export default function Login({ onNavigate }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    const success = await login(email, password);
-    if (success) {
-      onNavigate('onboarding');
-    }
+    await login(email, password);
   };
 
   return (
